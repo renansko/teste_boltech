@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Client;
 use Exception;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 
 class ClientController extends Controller
 {
@@ -19,7 +20,16 @@ class ClientController extends Controller
     }
 
     function store(Request $request): JsonResponse{
-        
+        //dd($request);
+        $credentials = $request->only('name');
+        $nome = $credentials['name'];
+        if(strlen($nome) < 4){
+            return response()->json([
+                'message' => 'Nome precisa ter mais de 3 caqaracteres',
+                'status' => false,
+             ], 409);
+        }
+
         try{
             $client = Client::create([
                 'name' => $request->name,
@@ -97,5 +107,15 @@ class ClientController extends Controller
                 "status" =>  false,
              ], 400);
         }
+    }
+
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    public function failedValidation(Validator $validator)
+    {
+        throw new HttpResponseException(response()->json($validator->errors(), 422));
     }
 }
