@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\ClientContatoContatoController;
+use App\Http\Controllers\Api\ClientContatoController;
 use App\Http\Controllers\Api\ClientController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -13,3 +15,5 @@ Route::get('/client/{id}', [ClientController::class, 'show']); //http://127.0.0.
 Route::post('/client', [ClientController::class, 'store']); //http://127.0.0.1:8000//client criar cliente 
 Route::patch('/client/{client}', [ClientController::class, 'update']); //http://127.0.0.1:8000//client/1 editar cliente 
 Route::delete('/client/{client}', [ClientController::class, 'destroy']); //http://127.0.0.1:8000//client/1 deletar cliente 
+
+Route::resource('contato/client', ClientContatoController::class); //http://127.0.0.1:8000

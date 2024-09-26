@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\ClientRequest;
 use App\Models\Client;
 use Exception;
 use Illuminate\Contracts\Validation\Validator;
@@ -19,35 +20,29 @@ class ClientController extends Controller
         ], 200);
     }
 
-    function store(Request $request): JsonResponse{
-        //dd($request);
-        $credentials = $request->only('name');
-        $nome = $credentials['name'];
-        if(strlen($nome) < 4){
-            return response()->json([
-                'message' => 'Nome precisa ter mais de 3 caqaracteres',
-                'status' => false,
-             ], 409);
-        }
-
+    function store(ClientRequest $request): JsonResponse{
+       
+        $clientValidated = $request->validated();
+        
         try{
-            $client = Client::create([
-                'name' => $request->name,
-                'telefone' => $request->telefone,
+             Client::create([
+                'name' => $clientValidated['name'],
+                'telefone' => $clientValidated['telefone'],
+                'document' => $clientValidated['document']
             ]);
     
     
             return response()->json([
                 'message' => 'Cliente criado com sucesso',
                 'status' => true,
-                "client" =>  $client,
+                "client" =>  $clientValidated,
              ], 201);
              
         }catch(Exception $e){
-        
             return response()->json([
                 'message' => 'Não foi possivel criar o cliente',
                 "status" =>  false,
+                'error' => $e->getMessage(),
              ], 400);
         }
        
@@ -70,9 +65,8 @@ class ClientController extends Controller
        
     }
 
-    function update(Client $client, Request $request): JsonResponse{
+    function update(Client $client, ClientRequest $request): JsonResponse{
         try{
-            
 
             $client->update([
                 'name' => $request->name,
@@ -109,13 +103,4 @@ class ClientController extends Controller
         }
     }
 
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    public function failedValidation(Validator $validator)
-    {
-        throw new HttpResponseException(response()->json($validator->errors(), 422));
-    }
 }
